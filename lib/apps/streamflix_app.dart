@@ -27,52 +27,52 @@ class _StreamFlixAppState extends State<StreamFlixApp> {
   // Movies/Series by category
   final Map<String, List<Map<String, dynamic>>> _content = {
     'trending': [
-      {'title': 'The Galaxy Wars', 'rating': '8.5', 'year': '2024', 'mature': false, 'image': '🌌'},
-      {'title': 'Love in Paris', 'rating': '7.8', 'year': '2023', 'mature': false, 'image': '❤️'},
-      {'title': 'Dark Secrets', 'rating': '9.2', 'year': '2024', 'mature': true, 'image': '🔮'},
-      {'title': 'Comedy Hour', 'rating': '8.0', 'year': '2024', 'mature': false, 'image': '😂'},
-      {'title': 'The Night Hunter', 'rating': '8.7', 'year': '2023', 'mature': true, 'image': '🌙'},
-      {'title': 'Family Adventure', 'rating': '7.5', 'year': '2024', 'mature': false, 'image': '🏔️'},
+      {'title': 'The Galaxy Wars', 'rating': '8.5', 'year': '2024', 'mature': false, 'image': 'assets/images/movies/galaxy_wars.jpg', 'fallback': '🌌'},
+      {'title': 'Love in Paris', 'rating': '7.8', 'year': '2023', 'mature': false, 'image': 'assets/images/movies/love_paris.jpg', 'fallback': '❤️'},
+      {'title': 'Dark Secrets', 'rating': '9.2', 'year': '2024', 'mature': true, 'image': 'assets/images/movies/dark_secrets.jpg', 'fallback': '🔮'},
+      {'title': 'Comedy Hour', 'rating': '8.0', 'year': '2024', 'mature': false, 'image': 'assets/images/movies/comedy_hour.jpg', 'fallback': '😂'},
+      {'title': 'The Night Hunter', 'rating': '8.7', 'year': '2023', 'mature': true, 'image': 'assets/images/movies/night_hunter.jpg', 'fallback': '🌙'},
+      {'title': 'Family Adventure', 'rating': '7.5', 'year': '2024', 'mature': false, 'image': 'assets/images/movies/family_adventure.jpg', 'fallback': '🏔️'},
     ],
     'action': [
-      {'title': 'Ultimate Fighter', 'rating': '8.9', 'year': '2024', 'mature': true, 'image': '🥊'},
-      {'title': 'Speed Chase', 'rating': '8.3', 'year': '2023', 'mature': false, 'image': '🏎️'},
-      {'title': 'Cyber Warriors', 'rating': '8.6', 'year': '2024', 'mature': true, 'image': '🤖'},
-      {'title': 'Mission Impossible', 'rating': '9.0', 'year': '2023', 'mature': false, 'image': '🎯'},
-      {'title': 'Street Fighter', 'rating': '7.9', 'year': '2024', 'mature': true, 'image': '⚔️'},
-      {'title': 'Hero Origins', 'rating': '8.4', 'year': '2023', 'mature': false, 'image': '🦸'},
+      {'title': 'Ultimate Fighter', 'rating': '8.9', 'year': '2024', 'mature': true, 'image': 'assets/images/movies/ultimate_fighter.jpg', 'fallback': '🥊'},
+      {'title': 'Speed Chase', 'rating': '8.3', 'year': '2023', 'mature': false, 'image': 'assets/images/movies/speed_chase.jpg', 'fallback': '🏎️'},
+      {'title': 'Cyber Warriors', 'rating': '8.6', 'year': '2024', 'mature': true, 'image': 'assets/images/movies/cyber_warriors.jpg', 'fallback': '🤖'},
+      {'title': 'Mission Impossible', 'rating': '9.0', 'year': '2023', 'mature': false, 'image': 'assets/images/movies/mission_impossible.jpg', 'fallback': '🎯'},
+      {'title': 'Street Fighter', 'rating': '7.9', 'year': '2024', 'mature': true, 'image': 'assets/images/movies/street_fighter.jpg', 'fallback': '⚔️'},
+      {'title': 'Hero Origins', 'rating': '8.4', 'year': '2023', 'mature': false, 'image': 'assets/images/movies/hero_origins.jpg', 'fallback': '🦸'},
     ],
     'comedy': [
-      {'title': 'Laugh Out Loud', 'rating': '8.1', 'year': '2024', 'mature': false, 'image': '😄'},
-      {'title': 'Office Pranks', 'rating': '7.8', 'year': '2023', 'mature': false, 'image': '🏢'},
-      {'title': 'Funny Family', 'rating': '8.3', 'year': '2024', 'mature': false, 'image': '👨‍👩‍👧‍👦'},
-      {'title': 'Stand Up Night', 'rating': '7.6', 'year': '2023', 'mature': true, 'image': '🎤'},
-      {'title': 'Crazy Neighbors', 'rating': '8.0', 'year': '2024', 'mature': false, 'image': '🏠'},
-      {'title': 'Joke Masters', 'rating': '7.9', 'year': '2023', 'mature': false, 'image': '🃏'},
+      {'title': 'Laugh Out Loud', 'rating': '8.1', 'year': '2024', 'mature': false, 'image': 'assets/images/movies/laugh_out_loud.jpg', 'fallback': '😄'},
+      {'title': 'Office Pranks', 'rating': '7.8', 'year': '2023', 'mature': false, 'image': 'assets/images/movies/office_pranks.jpg', 'fallback': '🏢'},
+      {'title': 'Funny Family', 'rating': '8.3', 'year': '2024', 'mature': false, 'image': 'assets/images/movies/funny_family.jpg', 'fallback': '👨‍👩‍👧‍👦'},
+      {'title': 'Stand Up Night', 'rating': '7.6', 'year': '2023', 'mature': true, 'image': 'assets/images/movies/stand_up_night.jpg', 'fallback': '🎤'},
+      {'title': 'Crazy Neighbors', 'rating': '8.0', 'year': '2024', 'mature': false, 'image': 'assets/images/movies/crazy_neighbors.jpg', 'fallback': '🏠'},
+      {'title': 'Joke Masters', 'rating': '7.9', 'year': '2023', 'mature': false, 'image': 'assets/images/movies/joke_masters.jpg', 'fallback': '🃏'},
     ],
     'drama': [
-      {'title': 'Life Stories', 'rating': '9.1', 'year': '2024', 'mature': true, 'image': '📖'},
-      {'title': 'Heart Breaking', 'rating': '8.8', 'year': '2023', 'mature': true, 'image': '💔'},
-      {'title': 'The Crown', 'rating': '9.3', 'year': '2024', 'mature': false, 'image': '👑'},
-      {'title': 'Lost Souls', 'rating': '8.5', 'year': '2023', 'mature': true, 'image': '🕊️'},
-      {'title': 'Justice Served', 'rating': '8.9', 'year': '2024', 'mature': true, 'image': '⚖️'},
-      {'title': 'Medical Miracles', 'rating': '8.4', 'year': '2023', 'mature': false, 'image': '⚕️'},
+      {'title': 'Life Stories', 'rating': '9.1', 'year': '2024', 'mature': true, 'image': 'assets/images/movies/life_stories.jpg', 'fallback': '📖'},
+      {'title': 'Heart Breaking', 'rating': '8.8', 'year': '2023', 'mature': true, 'image': 'assets/images/movies/heart_breaking.jpg', 'fallback': '💔'},
+      {'title': 'The Crown', 'rating': '9.3', 'year': '2024', 'mature': false, 'image': 'assets/images/movies/the_crown.jpg', 'fallback': '👑'},
+      {'title': 'Lost Souls', 'rating': '8.5', 'year': '2023', 'mature': true, 'image': 'assets/images/movies/lost_souls.jpg', 'fallback': '🕊️'},
+      {'title': 'Justice Served', 'rating': '8.9', 'year': '2024', 'mature': true, 'image': 'assets/images/movies/justice_served.jpg', 'fallback': '⚖️'},
+      {'title': 'Medical Miracles', 'rating': '8.4', 'year': '2023', 'mature': false, 'image': 'assets/images/movies/medical_miracles.jpg', 'fallback': '⚕️'},
     ],
     'horror': [
-      {'title': 'The Haunting', 'rating': '8.7', 'year': '2024', 'mature': true, 'image': '👻'},
-      {'title': 'Dark Forest', 'rating': '8.3', 'year': '2023', 'mature': true, 'image': '🌲'},
-      {'title': 'Nightmare House', 'rating': '9.0', 'year': '2024', 'mature': true, 'image': '🏚️'},
-      {'title': 'Ghost Stories', 'rating': '8.5', 'year': '2023', 'mature': true, 'image': '💀'},
-      {'title': 'The Curse', 'rating': '8.8', 'year': '2024', 'mature': true, 'image': '🔮'},
-      {'title': 'Silent Screams', 'rating': '8.6', 'year': '2023', 'mature': true, 'image': '😱'},
+      {'title': 'The Haunting', 'rating': '8.7', 'year': '2024', 'mature': true, 'image': 'assets/images/movies/the_haunting.jpg', 'fallback': '👻'},
+      {'title': 'Dark Forest', 'rating': '8.3', 'year': '2023', 'mature': true, 'image': 'assets/images/movies/dark_forest.jpg', 'fallback': '🌲'},
+      {'title': 'Nightmare House', 'rating': '9.0', 'year': '2024', 'mature': true, 'image': 'assets/images/movies/nightmare_house.jpg', 'fallback': '🏚️'},
+      {'title': 'Ghost Stories', 'rating': '8.5', 'year': '2023', 'mature': true, 'image': 'assets/images/movies/ghost_stories.jpg', 'fallback': '💀'},
+      {'title': 'The Curse', 'rating': '8.8', 'year': '2024', 'mature': true, 'image': 'assets/images/movies/the_curse.jpg', 'fallback': '🔮'},
+      {'title': 'Silent Screams', 'rating': '8.6', 'year': '2023', 'mature': true, 'image': 'assets/images/movies/silent_screams.jpg', 'fallback': '😱'},
     ],
     'kids': [
-      {'title': 'Funny Animals', 'rating': '8.2', 'year': '2024', 'mature': false, 'image': '🦁'},
-      {'title': 'Magic Kingdom', 'rating': '8.5', 'year': '2023', 'mature': false, 'image': '🏰'},
-      {'title': 'Space Rangers', 'rating': '8.0', 'year': '2024', 'mature': false, 'image': '🚀'},
-      {'title': 'Underwater Friends', 'rating': '7.9', 'year': '2023', 'mature': false, 'image': '🐠'},
-      {'title': 'Dino Park', 'rating': '8.3', 'year': '2024', 'mature': false, 'image': '🦕'},
-      {'title': 'Fairy Tales', 'rating': '8.1', 'year': '2023', 'mature': false, 'image': '🧚'},
+      {'title': 'Funny Animals', 'rating': '8.2', 'year': '2024', 'mature': false, 'image': 'assets/images/movies/funny_animals.jpg', 'fallback': '🦁'},
+      {'title': 'Magic Kingdom', 'rating': '8.5', 'year': '2023', 'mature': false, 'image': 'assets/images/movies/magic_kingdom.jpg', 'fallback': '🏰'},
+      {'title': 'Space Rangers', 'rating': '8.0', 'year': '2024', 'mature': false, 'image': 'assets/images/movies/space_rangers.jpg', 'fallback': '🚀'},
+      {'title': 'Underwater Friends', 'rating': '7.9', 'year': '2023', 'mature': false, 'image': 'assets/images/movies/underwater_friends.jpg', 'fallback': '🐠'},
+      {'title': 'Dino Park', 'rating': '8.3', 'year': '2024', 'mature': false, 'image': 'assets/images/movies/dino_park.jpg', 'fallback': '🦕'},
+      {'title': 'Fairy Tales', 'rating': '8.1', 'year': '2023', 'mature': false, 'image': 'assets/images/movies/fairy_tales.jpg', 'fallback': '🧚'},
     ],
   };
 
@@ -188,7 +188,8 @@ class _StreamFlixAppState extends State<StreamFlixApp> {
                         title: item['title'],
                         rating: item['rating'],
                         year: item['year'],
-                        image: item['image'],
+                        imagePath: item['image'],
+                        fallbackEmoji: item['fallback'],
                         isMature: item['mature'],
                         locale: locale,
                       );
@@ -205,7 +206,8 @@ class _ContentCard extends StatelessWidget {
   final String title;
   final String rating;
   final String year;
-  final String image;
+  final String imagePath;
+  final String fallbackEmoji;
   final bool isMature;
   final String locale;
 
@@ -214,7 +216,8 @@ class _ContentCard extends StatelessWidget {
     required this.title,
     required this.rating,
     required this.year,
-    required this.image,
+    required this.imagePath,
+    required this.fallbackEmoji,
     required this.isMature,
     required this.locale,
   }) : super(key: key);
@@ -245,9 +248,26 @@ class _ContentCard extends StatelessWidget {
                     style: TextStyle(color: Colors.grey[400]),
                   ),
                   const SizedBox(height: 16),
-                  Text(
-                    image,
-                    style: const TextStyle(fontSize: 80),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.asset(
+                      imagePath,
+                      height: 200,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          height: 200,
+                          color: Colors.grey[800],
+                          child: Center(
+                            child: Text(
+                              fallbackEmoji,
+                              style: const TextStyle(fontSize: 80),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ],
               ),
@@ -271,21 +291,35 @@ class _ContentCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey[800],
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(8),
-                  ),
+              child: ClipRRect(
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(8),
                 ),
                 child: Stack(
                   children: [
-                    Center(
-                      child: Text(
-                        image,
-                        style: const TextStyle(fontSize: 60),
-                      ),
+                    // Movie Poster Image
+                    Image.asset(
+                      imagePath,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: double.infinity,
+                      errorBuilder: (context, error, stackTrace) {
+                        // Fallback to emoji if image not found
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: Colors.grey[800],
+                          ),
+                          child: Center(
+                            child: Text(
+                              fallbackEmoji,
+                              style: const TextStyle(fontSize: 60),
+                            ),
+                          ),
+                        );
+                      },
                     ),
+                    
+                    // 18+ Badge
                     if (isMature)
                       Positioned(
                         top: 8,
