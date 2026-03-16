@@ -15,121 +15,124 @@ class ProfileScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, size: 18),
+          onPressed: () => Navigator.pop(context),
+        ),
         title: Text(AppLocalizations.translate('profile', locale)),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            // Avatar
-            CircleAvatar(
-              radius: 60,
-              backgroundColor: isDark ? Colors.blue[700] : Colors.purple[700],
-              child: Text(
-                user['name'][0].toUpperCase(),
-                style: const TextStyle(
-                  fontSize: 48,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+            const SizedBox(height: 8),
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFF1A1A1A),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Center(
+                child: Text(
+                  user['name'][0].toUpperCase(),
+                  style: const TextStyle(
+                    fontSize: 34,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
-            const SizedBox(height: 24),
-
-            // User Info Card
-            Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  children: [
-                    _ProfileField(
-                      label: AppLocalizations.translate('name', locale),
-                      value: user['name'],
-                      icon: Icons.person,
-                    ),
-                    const Divider(height: 32),
-                    _ProfileField(
-                      label: AppLocalizations.translate('email', locale),
-                      value: user['email'],
-                      icon: Icons.email,
-                    ),
-                    const Divider(height: 32),
-                    _ProfileField(
-                      label: AppLocalizations.translate('age', locale),
-                      value: user['age'].toString(),
-                      icon: Icons.cake,
-                    ),
-                    const Divider(height: 32),
-                    _ProfileField(
-                      label: AppLocalizations.translate('account_created', locale),
-                      value: user['created_at'] ?? 'N/A',
-                      icon: Icons.calendar_today,
-                    ),
-                    if (user['last_login'] != null) ...[
-                      const Divider(height: 32),
-                      _ProfileField(
-                        label: AppLocalizations.translate('last_login', locale),
-                        value: user['last_login'],
-                        icon: Icons.access_time,
-                      ),
-                    ],
-                  ],
-                ),
+            const SizedBox(height: 16),
+            Text(
+              user['name'],
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: isDark ? Colors.white : const Color(0xFF1A1A1A),
               ),
             ),
+            const SizedBox(height: 4),
+            Text(
+              user['email'],
+              style: TextStyle(
+                fontSize: 14,
+                color: isDark ? const Color(0xFF888888) : const Color(0xFF666666),
+              ),
+            ),
+            const SizedBox(height: 32),
+            _buildInfoCard(isDark, locale, user),
           ],
         ),
       ),
     );
   }
-}
 
-class _ProfileField extends StatelessWidget {
-  final String label;
-  final String value;
-  final IconData icon;
+  Widget _buildInfoCard(bool isDark, String locale, Map<String, dynamic> user) {
+    final fields = [
+      {'label': AppLocalizations.translate('name', locale), 'value': user['name'], 'icon': Icons.person_outline},
+      {'label': AppLocalizations.translate('email', locale), 'value': user['email'], 'icon': Icons.email_outlined},
+      {'label': AppLocalizations.translate('age', locale), 'value': user['age'].toString(), 'icon': Icons.calendar_today_outlined},
+      {'label': AppLocalizations.translate('account_created', locale), 'value': user['created_at'] ?? 'N/A', 'icon': Icons.access_time_outlined},
+      if (user['last_login'] != null)
+        {'label': AppLocalizations.translate('last_login', locale), 'value': user['last_login'], 'icon': Icons.login_outlined},
+    ];
 
-  const _ProfileField({
-    Key? key,
-    required this.label,
-    required this.value,
-    required this.icon,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icon, color: Colors.blue[700]),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFEEEEEE)),
+      ),
+      child: Column(
+        children: fields.asMap().entries.map((entry) {
+          final index = entry.key;
+          final field = entry.value;
+          return Column(
             children: [
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[600],
-                  fontWeight: FontWeight.w500,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                child: Row(
+                  children: [
+                    Icon(
+                      field['icon'] as IconData,
+                      size: 18,
+                      color: isDark ? const Color(0xFF888888) : const Color(0xFF888888),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            field['label'] as String,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: isDark ? const Color(0xFF888888) : const Color(0xFF888888),
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            field['value'] as String,
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                              color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 4),
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+              if (index < fields.length - 1)
+                Divider(height: 1, color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFEEEEEE)),
             ],
-          ),
-        ),
-      ],
+          );
+        }).toList(),
+      ),
     );
   }
 }

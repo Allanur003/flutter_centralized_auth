@@ -14,81 +14,168 @@ class SettingsScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, size: 18),
+          onPressed: () => Navigator.pop(context),
+        ),
         title: Text(AppLocalizations.translate('settings', locale)),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         children: [
-          // Theme Setting
-          Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: ListTile(
-              leading: Icon(
-                isDark ? Icons.dark_mode : Icons.light_mode,
-                color: Colors.blue[700],
-              ),
-              title: Text(AppLocalizations.translate('theme', locale)),
-              subtitle: Text(
-                isDark
+          _sectionLabel('Appearance', isDark),
+          const SizedBox(height: 8),
+          _buildCard(
+            isDark,
+            children: [
+              _buildSwitchTile(
+                isDark: isDark,
+                icon: isDark ? Icons.dark_mode_outlined : Icons.light_mode_outlined,
+                title: AppLocalizations.translate('theme', locale),
+                subtitle: isDark
                     ? AppLocalizations.translate('dark_mode', locale)
                     : AppLocalizations.translate('light_mode', locale),
-              ),
-              trailing: Switch(
                 value: isDark,
                 onChanged: (_) => provider.toggleTheme(),
               ),
-            ),
+            ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
+          _sectionLabel(AppLocalizations.translate('language', locale), isDark),
+          const SizedBox(height: 8),
+          _buildCard(
+            isDark,
+            children: AppLocalizations.supportedLocales.asMap().entries.map((entry) {
+              final index = entry.key;
+              final loc = entry.value;
+              final isLast = index == AppLocalizations.supportedLocales.length - 1;
+              return Column(
+                children: [
+                  InkWell(
+                    onTap: () => provider.changeLanguage(loc),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                      child: Row(
+                        children: [
+                          Text(
+                            AppLocalizations.getLanguageName(loc),
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: isDark ? const Color(0xFF888888) : const Color(0xFF666666),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            AppLocalizations.getFullLanguageName(loc),
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                            ),
+                          ),
+                          const Spacer(),
+                          if (locale == loc)
+                            Container(
+                              width: 20,
+                              height: 20,
+                              decoration: BoxDecoration(
+                                color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.check,
+                                size: 13,
+                                color: isDark ? const Color(0xFF1A1A1A) : Colors.white,
+                              ),
+                            )
+                          else
+                            Container(
+                              width: 20,
+                              height: 20,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: isDark ? const Color(0xFF3A3A3A) : const Color(0xFFDDDDDD),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  if (!isLast)
+                    Divider(height: 1, color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFEEEEEE)),
+                ],
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
 
-          // Language Setting
-          Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+  Widget _sectionLabel(String label, bool isDark) {
+    return Text(
+      label.toUpperCase(),
+      style: TextStyle(
+        fontSize: 11,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 1.2,
+        color: isDark ? const Color(0xFF666666) : const Color(0xFF888888),
+      ),
+    );
+  }
+
+  Widget _buildCard(bool isDark, {required List<Widget> children}) {
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFEEEEEE)),
+      ),
+      child: Column(children: children),
+    );
+  }
+
+  Widget _buildSwitchTile({
+    required bool isDark,
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: isDark ? const Color(0xFF888888) : const Color(0xFF666666)),
+          const SizedBox(width: 14),
+          Expanded(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ListTile(
-                  leading: Icon(Icons.language, color: Colors.blue[700]),
-                  title: Text(AppLocalizations.translate('language', locale)),
-                  subtitle: Text(AppLocalizations.getLanguageName(locale)),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                  ),
                 ),
-                const Divider(height: 1),
-                ...AppLocalizations.supportedLocales.map((loc) {
-                  return RadioListTile<String>(
-                    title: Text(AppLocalizations.getLanguageName(loc)),
-                    value: loc,
-                    groupValue: locale,
-                    onChanged: (value) {
-                      if (value != null) {
-                        provider.changeLanguage(value);
-                      }
-                    },
-                  );
-                }).toList(),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? const Color(0xFF888888) : const Color(0xFF888888),
+                  ),
+                ),
               ],
             ),
           ),
-          const SizedBox(height: 16),
-
-          // Profile Info
-          Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: ListTile(
-              leading: Icon(Icons.person, color: Colors.blue[700]),
-              title: Text(AppLocalizations.translate('profile', locale)),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
+          Switch(
+            value: value,
+            onChanged: onChanged,
+            activeColor: isDark ? Colors.white : const Color(0xFF1A1A1A),
           ),
         ],
       ),

@@ -30,9 +30,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
-
     setState(() => _isLoading = true);
-
     final provider = Provider.of<AppProvider>(context, listen: false);
     final success = await provider.register(
       _nameController.text.trim(),
@@ -40,28 +38,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _passwordController.text,
       int.parse(_ageController.text),
     );
-
     setState(() => _isLoading = false);
-
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppLocalizations.translate(
-            'registration_success',
-            provider.locale,
-          )),
-          backgroundColor: Colors.green,
+          content: Text(AppLocalizations.translate('registration_success', provider.locale)),
+          backgroundColor: const Color(0xFF2E7D32),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       );
       Navigator.of(context).pop();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppLocalizations.translate(
-            'email_exists',
-            provider.locale,
-          )),
-          backgroundColor: Colors.red,
+          content: Text(AppLocalizations.translate('email_exists', provider.locale)),
+          backgroundColor: const Color(0xFFE53935),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       );
     }
@@ -74,192 +68,146 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final locale = provider.locale;
 
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: isDark
-                ? [Colors.grey[900]!, Colors.grey[800]!]
-                : [Colors.purple[700]!, Colors.blue[700]!],
-          ),
+      backgroundColor: isDark ? const Color(0xFF121212) : const Color(0xFFF5F5F5),
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, size: 18),
+          onPressed: () => Navigator.pop(context),
         ),
-        child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
-              child: Card(
-                elevation: 8,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Container(
-                  padding: const EdgeInsets.all(32.0),
-                  constraints: const BoxConstraints(maxWidth: 400),
-                  child: Form(
+        title: Text(AppLocalizations.translate('create_account', locale)),
+      ),
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 420),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    AppLocalizations.translate('create_account', locale),
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w700,
+                      color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    AppLocalizations.translate('register', locale),
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: isDark ? const Color(0xFF888888) : const Color(0xFF666666),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  Form(
                     key: _formKey,
                     child: Column(
-                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Logo
-                        Icon(
-                          Icons.person_add_outlined,
-                          size: 80,
-                          color: isDark ? Colors.purple[300] : Colors.purple[700],
-                        ),
-                        const SizedBox(height: 16),
-                        
-                        // Title
-                        Text(
-                          AppLocalizations.translate('create_account', locale),
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: isDark ? Colors.purple[300] : Colors.purple[700],
-                          ),
-                        ),
-                        const SizedBox(height: 32),
-
-                        // Name field
                         TextFormField(
                           controller: _nameController,
+                          style: TextStyle(color: isDark ? Colors.white : const Color(0xFF1A1A1A)),
                           decoration: InputDecoration(
                             labelText: AppLocalizations.translate('name', locale),
-                            prefixIcon: const Icon(Icons.person_outlined),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
+                            prefixIcon: Icon(Icons.person_outline, size: 20, color: isDark ? const Color(0xFF888888) : const Color(0xFF666666)),
                           ),
                           validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your name';
-                            }
+                            if (value == null || value.isEmpty) return 'Required';
                             return null;
                           },
                         ),
                         const SizedBox(height: 16),
-
-                        // Email field
                         TextFormField(
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
+                          style: TextStyle(color: isDark ? Colors.white : const Color(0xFF1A1A1A)),
                           decoration: InputDecoration(
                             labelText: AppLocalizations.translate('email', locale),
-                            prefixIcon: const Icon(Icons.email_outlined),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
+                            prefixIcon: Icon(Icons.email_outlined, size: 20, color: isDark ? const Color(0xFF888888) : const Color(0xFF666666)),
                           ),
                           validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter email';
-                            }
-                            if (!value.contains('@')) {
-                              return 'Please enter valid email';
-                            }
+                            if (value == null || value.isEmpty) return 'Required';
+                            if (!value.contains('@')) return 'Invalid email';
                             return null;
                           },
                         ),
                         const SizedBox(height: 16),
-
-                        // Age field
                         TextFormField(
                           controller: _ageController,
                           keyboardType: TextInputType.number,
+                          style: TextStyle(color: isDark ? Colors.white : const Color(0xFF1A1A1A)),
                           decoration: InputDecoration(
                             labelText: AppLocalizations.translate('age', locale),
-                            prefixIcon: const Icon(Icons.cake_outlined),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
+                            prefixIcon: Icon(Icons.calendar_today_outlined, size: 20, color: isDark ? const Color(0xFF888888) : const Color(0xFF666666)),
                           ),
                           validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your age';
-                            }
+                            if (value == null || value.isEmpty) return 'Required';
                             final age = int.tryParse(value);
-                            if (age == null || age < 1 || age > 120) {
-                              return 'Please enter valid age';
-                            }
+                            if (age == null || age < 1 || age > 120) return 'Invalid age';
                             return null;
                           },
                         ),
                         const SizedBox(height: 16),
-
-                        // Password field
                         TextFormField(
                           controller: _passwordController,
                           obscureText: _obscurePassword,
+                          style: TextStyle(color: isDark ? Colors.white : const Color(0xFF1A1A1A)),
                           decoration: InputDecoration(
                             labelText: AppLocalizations.translate('password', locale),
-                            prefixIcon: const Icon(Icons.lock_outlined),
+                            prefixIcon: Icon(Icons.lock_outline, size: 20, color: isDark ? const Color(0xFF888888) : const Color(0xFF666666)),
                             suffixIcon: IconButton(
                               icon: Icon(
-                                _obscurePassword
-                                    ? Icons.visibility_outlined
-                                    : Icons.visibility_off_outlined,
+                                _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                                size: 20,
+                                color: isDark ? const Color(0xFF888888) : const Color(0xFF666666),
                               ),
-                              onPressed: () {
-                                setState(() {
-                                  _obscurePassword = !_obscurePassword;
-                                });
-                              },
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                             ),
                           ),
                           validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter password';
-                            }
-                            if (value.length < 6) {
-                              return 'Password must be at least 6 characters';
-                            }
+                            if (value == null || value.isEmpty) return 'Required';
+                            if (value.length < 6) return 'Min. 6 characters';
                             return null;
                           },
                         ),
-                        const SizedBox(height: 24),
-
-                        // Register button
+                        const SizedBox(height: 28),
                         SizedBox(
                           width: double.infinity,
-                          height: 50,
+                          height: 52,
                           child: ElevatedButton(
                             onPressed: _isLoading ? null : _handleRegister,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: isDark ? Colors.purple[700] : Colors.purple[700],
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
                             child: _isLoading
-                                ? const CircularProgressIndicator(color: Colors.white)
-                                : Text(
-                                    AppLocalizations.translate('register', locale),
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
+                                ? SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: isDark ? const Color(0xFF1A1A1A) : Colors.white,
                                     ),
-                                  ),
+                                  )
+                                : Text(AppLocalizations.translate('register', locale)),
                           ),
                         ),
                         const SizedBox(height: 16),
-
-                        // Back to login link
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: Text(
-                            AppLocalizations.translate('have_account', locale),
-                            style: TextStyle(
-                              color: isDark ? Colors.purple[300] : Colors.purple[700],
+                        GestureDetector(
+                          onTap: () => Navigator.pop(context),
+                          child: Center(
+                            child: Text(
+                              AppLocalizations.translate('have_account', locale),
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: isDark ? const Color(0xFFAAAAAA) : const Color(0xFF555555),
+                              ),
                             ),
                           ),
                         ),
                       ],
                     ),
                   ),
-                ),
+                ],
               ),
             ),
           ),

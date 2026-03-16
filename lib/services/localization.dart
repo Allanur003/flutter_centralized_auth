@@ -1,193 +1,193 @@
 class AppLocalizations {
-  static Map<String, Map<String, String>> _localizedStrings = {
+  static const Map<String, Map<String, String>> _strings = {
     'en': {
-      // Auth
       'app_title': 'Auth System',
-      'welcome': 'Welcome',
-      'login': 'Login',
-      'register': 'Register',
+      'welcome': 'Welcome back',
+      'login': 'Sign In',
+      'register': 'Create Account',
       'email': 'Email',
       'password': 'Password',
       'name': 'Full Name',
       'age': 'Age',
-      'forgot_password': 'Forgot Password?',
-      'no_account': 'Don\'t have an account?',
-      'have_account': 'Already have an account?',
+      'forgot_password': 'Forgot password?',
+      'no_account': "Don't have an account? Sign up",
+      'have_account': 'Already have an account? Sign in',
       'logout': 'Logout',
       'create_account': 'Create Account',
-      
-      // Dashboard
-      'my_apps': 'My Applications',
+      'sign_in_to_continue': 'Sign in to continue',
+      'my_apps': 'My Apps',
       'profile': 'Profile',
       'settings': 'Settings',
       'language': 'Language',
-      'theme': 'Theme',
-      'light_mode': 'Light Mode',
-      'dark_mode': 'Dark Mode',
-      
-      // Apps
+      'theme': 'Appearance',
+      'light_mode': 'Light',
+      'dark_mode': 'Dark',
       'fashion_store': 'Fashion Store',
-      'fashion_desc': 'Online clothing shopping',
+      'fashion_desc': 'Shop the latest trends',
       'stream_flix': 'StreamFlix',
-      'stream_desc': 'Watch movies and series',
+      'stream_desc': 'Movies & TV Shows',
       'social_chat': 'SocialChat',
       'social_desc': 'Connect with friends',
-      
-      // Fashion Store
-      'mens_wear': 'Men\'s Wear',
-      'womens_wear': 'Women\'s Wear',
-      'kids_wear': 'Kids Wear',
+      'mens_wear': "Men",
+      'womens_wear': 'Women',
+      'kids_wear': 'Kids',
       'accessories': 'Accessories',
       'add_to_cart': 'Add to Cart',
-      'cart': 'Shopping Cart',
-      
-      // StreamFlix
-      'trending': 'Trending Now',
+      'cart': 'Cart',
+      'checkout': 'Checkout',
+      'total': 'Total',
+      'items': 'items',
+      'empty_cart': 'Your cart is empty',
+      'order_placed': 'Order placed successfully!',
+      'product_details': 'Product Details',
+      'quantity': 'Quantity',
+      'size': 'Size',
+      'color': 'Color',
+      'in_stock': 'In Stock',
+      'free_shipping': 'Free Shipping',
+      'remove': 'Remove',
+      'trending': 'Trending',
       'action': 'Action',
       'comedy': 'Comedy',
       'drama': 'Drama',
       'horror': 'Horror',
       'kids': 'Kids',
-      'play': 'Play',
+      'play': 'Watch Now',
       'my_list': 'My List',
-      
-      // SocialChat
       'messages': 'Messages',
       'friends': 'Friends',
       'groups': 'Groups',
       'status': 'Status',
-      'send_message': 'Send Message',
-      
-      // Errors
+      'send_message': 'New Message',
       'error': 'Error',
       'success': 'Success',
       'invalid_credentials': 'Invalid email or password',
-      'email_exists': 'Email already exists',
-      'registration_success': 'Registration successful',
-      'age_restricted': 'Age restricted content',
+      'email_exists': 'This email is already registered',
+      'registration_success': 'Account created successfully',
+      'age_restricted': 'Age restriction',
       'min_age_required': 'Minimum age required:',
-      
-      // Profile
       'edit_profile': 'Edit Profile',
       'change_password': 'Change Password',
-      'account_created': 'Account Created',
-      'last_login': 'Last Login',
+      'account_created': 'Member since',
+      'last_login': 'Last login',
     },
     'tk': {
-      // Auth
       'app_title': 'Giriş Ulgamy',
       'welcome': 'Hoş geldiňiz',
       'login': 'Giriş',
-      'register': 'Hasaba al',
+      'register': 'Hasap dörediň',
       'email': 'Email',
       'password': 'Parol',
       'name': 'At Familýa',
       'age': 'Ýaş',
-      'forgot_password': 'Parolyňyzy unuttunyzmy?',
-      'no_account': 'Hasabyňyz ýokmy?',
-      'have_account': 'Hasabyňyz barmy?',
+      'forgot_password': 'Paroly unutdyňyzmy?',
+      'no_account': 'Hasabyňyz ýokmy? Hasaba alyň',
+      'have_account': 'Hasabyňyz barmy? Giriň',
       'logout': 'Çykmak',
       'create_account': 'Hasap Dörediň',
-      
-      // Dashboard
-      'my_apps': 'Meniň Programmalarym',
+      'sign_in_to_continue': 'Dowam etmek üçin giriň',
+      'my_apps': 'Programmalarym',
       'profile': 'Profil',
       'settings': 'Sazlamalar',
       'language': 'Dil',
-      'theme': 'Tema',
-      'light_mode': 'Ýagty Režim',
-      'dark_mode': 'Garaňky Režim',
-      
-      // Apps
-      'fashion_store': 'Moda Dükany',
-      'fashion_desc': 'Onlaýn egin-eşik söwdasy',
+      'theme': 'Görünüş',
+      'light_mode': 'Ýagty',
+      'dark_mode': 'Garaňky',
+      'fashion_store': 'Moda Dükan',
+      'fashion_desc': 'Iň täze modalar',
       'stream_flix': 'StreamFlix',
-      'stream_desc': 'Film we seriallary görüň',
+      'stream_desc': 'Film we seriallar',
       'social_chat': 'SosialÇat',
       'social_desc': 'Dostlaryňyz bilen habarlaşyň',
-      
-      // Fashion Store
-      'mens_wear': 'Erkekler üçin',
-      'womens_wear': 'Aýallar üçin',
-      'kids_wear': 'Çagalar üçin',
+      'mens_wear': 'Erkekler',
+      'womens_wear': 'Aýallar',
+      'kids_wear': 'Çagalar',
       'accessories': 'Aksessuarlar',
       'add_to_cart': 'Sebede goş',
-      'cart': 'Haryt sebedi',
-      
-      // StreamFlix
-      'trending': 'Meşhur häzir',
+      'cart': 'Sebet',
+      'checkout': 'Sargyt et',
+      'total': 'Jemi',
+      'items': 'haryt',
+      'empty_cart': 'Sebet boş',
+      'order_placed': 'Sargyt üstünlikli berildi!',
+      'product_details': 'Haryt maglumaty',
+      'quantity': 'Mukdar',
+      'size': 'Ölçeg',
+      'color': 'Reňk',
+      'in_stock': 'Bardy',
+      'free_shipping': 'Mugt eltip beriş',
+      'remove': 'Aýyr',
+      'trending': 'Meşhur',
       'action': 'Hereket',
       'comedy': 'Komediýa',
       'drama': 'Drama',
       'horror': 'Gorkunç',
       'kids': 'Çagalar',
-      'play': 'Oýnat',
-      'my_list': 'Meniň sanawym',
-      
-      // SocialChat
+      'play': 'Görmek',
+      'my_list': 'Sanawym',
       'messages': 'Habarlar',
       'friends': 'Dostlar',
       'groups': 'Toparlar',
-      'status': 'Status',
-      'send_message': 'Habar iber',
-      
-      // Errors
+      'status': 'Ýagdaý',
+      'send_message': 'Täze habar',
       'error': 'Ýalňyşlyk',
       'success': 'Üstünlikli',
       'invalid_credentials': 'Email ýa-da parol nädogry',
       'email_exists': 'Bu email eýýäm hasaba alyndy',
-      'registration_success': 'Hasaba alyndy',
+      'registration_success': 'Hasap üstünlikli döredildi',
       'age_restricted': 'Ýaş çäklendirmesi',
-      'min_age_required': 'Iň az ýaş talap edilýär:',
-      
-      // Profile
+      'min_age_required': 'Iň az ýaş:',
       'edit_profile': 'Profili üýtget',
       'change_password': 'Paroly üýtget',
-      'account_created': 'Hasap döredildi',
+      'account_created': 'Hasap döredilen',
       'last_login': 'Soňky giriş',
     },
     'ru': {
-      // Auth
-      'app_title': 'Система Входа',
+      'app_title': 'Система Авторизации',
       'welcome': 'Добро пожаловать',
       'login': 'Войти',
-      'register': 'Регистрация',
+      'register': 'Создать аккаунт',
       'email': 'Электронная почта',
       'password': 'Пароль',
       'name': 'Полное имя',
       'age': 'Возраст',
       'forgot_password': 'Забыли пароль?',
-      'no_account': 'Нет аккаунта?',
-      'have_account': 'Уже есть аккаунт?',
+      'no_account': 'Нет аккаунта? Зарегистрируйтесь',
+      'have_account': 'Уже есть аккаунт? Войти',
       'logout': 'Выйти',
       'create_account': 'Создать аккаунт',
-      
-      // Dashboard
-      'my_apps': 'Мои Приложения',
+      'sign_in_to_continue': 'Войдите чтобы продолжить',
+      'my_apps': 'Мои приложения',
       'profile': 'Профиль',
       'settings': 'Настройки',
       'language': 'Язык',
-      'theme': 'Тема',
-      'light_mode': 'Светлая тема',
-      'dark_mode': 'Темная тема',
-      
-      // Apps
-      'fashion_store': 'Магазин Моды',
-      'fashion_desc': 'Интернет-магазин одежды',
+      'theme': 'Оформление',
+      'light_mode': 'Светлая',
+      'dark_mode': 'Темная',
+      'fashion_store': 'Магазин моды',
+      'fashion_desc': 'Последние тренды',
       'stream_flix': 'StreamFlix',
-      'stream_desc': 'Смотрите фильмы и сериалы',
+      'stream_desc': 'Фильмы и сериалы',
       'social_chat': 'СоциалЧат',
       'social_desc': 'Общайтесь с друзьями',
-      
-      // Fashion Store
-      'mens_wear': 'Мужская одежда',
-      'womens_wear': 'Женская одежда',
-      'kids_wear': 'Детская одежда',
+      'mens_wear': 'Мужское',
+      'womens_wear': 'Женское',
+      'kids_wear': 'Детское',
       'accessories': 'Аксессуары',
       'add_to_cart': 'В корзину',
       'cart': 'Корзина',
-      
-      // StreamFlix
+      'checkout': 'Оформить заказ',
+      'total': 'Итого',
+      'items': 'товара',
+      'empty_cart': 'Корзина пуста',
+      'order_placed': 'Заказ успешно оформлен!',
+      'product_details': 'Детали товара',
+      'quantity': 'Количество',
+      'size': 'Размер',
+      'color': 'Цвет',
+      'in_stock': 'В наличии',
+      'free_shipping': 'Бесплатная доставка',
+      'remove': 'Удалить',
       'trending': 'В тренде',
       'action': 'Боевик',
       'comedy': 'Комедия',
@@ -196,49 +196,46 @@ class AppLocalizations {
       'kids': 'Детям',
       'play': 'Смотреть',
       'my_list': 'Мой список',
-      
-      // SocialChat
       'messages': 'Сообщения',
       'friends': 'Друзья',
       'groups': 'Группы',
       'status': 'Статус',
-      'send_message': 'Отправить сообщение',
-      
-      // Errors
+      'send_message': 'Новое сообщение',
       'error': 'Ошибка',
       'success': 'Успешно',
       'invalid_credentials': 'Неверный email или пароль',
       'email_exists': 'Email уже зарегистрирован',
-      'registration_success': 'Регистрация успешна',
+      'registration_success': 'Аккаунт успешно создан',
       'age_restricted': 'Ограничение по возрасту',
       'min_age_required': 'Минимальный возраст:',
-      
-      // Profile
-      'edit_profile': 'Редактировать профиль',
+      'edit_profile': 'Редактировать',
       'change_password': 'Изменить пароль',
-      'account_created': 'Аккаунт создан',
+      'account_created': 'Участник с',
       'last_login': 'Последний вход',
     },
   };
 
   static String translate(String key, String locale) {
-    return _localizedStrings[locale]?[key] ?? 
-           _localizedStrings['en']?[key] ?? 
-           key;
+    return _strings[locale]?[key] ?? _strings['en']?[key] ?? key;
   }
 
   static List<String> get supportedLocales => ['en', 'tk', 'ru'];
-  
+
   static String getLanguageName(String locale) {
     switch (locale) {
-      case 'en':
-        return 'English';
-      case 'tk':
-        return 'Türkmençe';
-      case 'ru':
-        return 'Русский';
-      default:
-        return 'English';
+      case 'en': return 'EN';
+      case 'tk': return 'TK';
+      case 'ru': return 'RU';
+      default: return 'EN';
+    }
+  }
+
+  static String getFullLanguageName(String locale) {
+    switch (locale) {
+      case 'en': return 'English';
+      case 'tk': return 'Türkmençe';
+      case 'ru': return 'Русский';
+      default: return 'English';
     }
   }
 }

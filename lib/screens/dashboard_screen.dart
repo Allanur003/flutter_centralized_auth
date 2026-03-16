@@ -38,12 +38,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void _openApp(String appName, int minAge) {
     final provider = Provider.of<AppProvider>(context, listen: false);
     final userAge = provider.currentUser!['age'] as int;
-
     if (userAge < minAge) {
-      _showAgeRestrictionDialog(minAge);
+      _showAgeRestriction(minAge);
       return;
     }
-
     Widget screen;
     switch (appName) {
       case 'FashionStore':
@@ -58,24 +56,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
       default:
         return;
     }
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => screen),
-    );
+    Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
   }
 
-  void _showAgeRestrictionDialog(int minAge) {
+  void _showAgeRestriction(int minAge) {
     final provider = Provider.of<AppProvider>(context, listen: false);
     final locale = provider.locale;
-
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(AppLocalizations.translate('age_restricted', locale)),
-        content: Text(
-          '${AppLocalizations.translate('min_age_required', locale)} $minAge',
-        ),
+        content: Text('${AppLocalizations.translate('min_age_required', locale)} $minAge'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
@@ -89,7 +81,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Future<void> _handleLogout() async {
     final provider = Provider.of<AppProvider>(context, listen: false);
     await provider.logout();
-    
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => const LoginScreen()),
       (route) => false,
@@ -108,16 +99,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
         title: Text(AppLocalizations.translate('my_apps', locale)),
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const SettingsScreen()),
-              );
-            },
+            icon: const Icon(Icons.settings_outlined, size: 22),
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen())),
           ),
           IconButton(
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.logout_outlined, size: 22),
             onPressed: _handleLogout,
           ),
         ],
@@ -126,102 +112,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
-                // User Info Card
-                Container(
-                  margin: const EdgeInsets.all(16),
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: isDark
-                          ? [Colors.grey[800]!, Colors.grey[900]!]
-                          : [Colors.blue[700]!, Colors.purple[700]!],
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 35,
-                        backgroundColor: Colors.white,
-                        child: Text(
-                          user!['name'][0].toUpperCase(),
-                          style: TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                            color: isDark ? Colors.blue[700] : Colors.purple[700],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              user['name'],
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              user['email'],
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 14,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '${AppLocalizations.translate('age', locale)}: ${user['age']}',
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.person, color: Colors.white),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const ProfileScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Apps Grid
+                _buildUserCard(user!, isDark, locale),
                 Expanded(
                   child: _apps.isEmpty
                       ? Center(
                           child: Text(
                             AppLocalizations.translate('age_restricted', locale),
-                            style: const TextStyle(fontSize: 16),
+                            style: TextStyle(color: isDark ? const Color(0xFF888888) : const Color(0xFF666666)),
                           ),
                         )
                       : GridView.builder(
-                          padding: const EdgeInsets.all(16),
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
+                          padding: const EdgeInsets.all(20),
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
                             crossAxisSpacing: 16,
                             mainAxisSpacing: 16,
-                            childAspectRatio: 1,
+                            childAspectRatio: 0.95,
                           ),
                           itemCount: _apps.length,
                           itemBuilder: (ctx, index) {
@@ -229,7 +135,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             return _AppCard(
                               icon: app['icon'],
                               name: app['name'],
-                              description: app['description'],
+                              description: AppLocalizations.translate(
+                                '${app['name'].toLowerCase().replaceAll(' ', '_')}_desc',
+                                locale,
+                              ),
                               minAge: app['min_age'],
                               isDark: isDark,
                               onTap: () => _openApp(app['name'], app['min_age']),
@@ -239,6 +148,84 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ],
             ),
+    );
+  }
+
+  Widget _buildUserCard(Map<String, dynamic> user, bool isDark, String locale) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFEEEEEE),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFF1A1A1A),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Center(
+              child: Text(
+                user['name'][0].toUpperCase(),
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
+                  color: isDark ? Colors.white : Colors.white,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  user['name'],
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  user['email'],
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: isDark ? const Color(0xFF888888) : const Color(0xFF666666),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          GestureDetector(
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen())),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                border: Border.all(color: isDark ? const Color(0xFF3A3A3A) : const Color(0xFFDDDDDD)),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                AppLocalizations.translate('profile', locale),
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: isDark ? const Color(0xFFAAAAAA) : const Color(0xFF555555),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -263,77 +250,59 @@ class _AppCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: isDark
-                  ? [Colors.grey[800]!, Colors.grey[900]!]
-                  : [Colors.white, Colors.grey[100]!],
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFEEEEEE),
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(icon, style: const TextStyle(fontSize: 36)),
+            const Spacer(),
+            Text(
+              name,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+              ),
             ),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                icon,
-                style: const TextStyle(fontSize: 60),
+            const SizedBox(height: 4),
+            Text(
+              description,
+              style: TextStyle(
+                fontSize: 12,
+                color: isDark ? const Color(0xFF888888) : const Color(0xFF888888),
               ),
-              const SizedBox(height: 12),
-              Text(
-                name,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.white : Colors.black87,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            if (minAge > 0) ...[
+              const SizedBox(height: 10),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFF0F0F0),
+                  borderRadius: BorderRadius.circular(4),
                 ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                description,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: isDark ? Colors.white70 : Colors.grey[600],
-                ),
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              if (minAge > 0) ...[
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    '$minAge+',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.orange[700],
-                    ),
+                child: Text(
+                  '$minAge+',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? const Color(0xFFAAAAAA) : const Color(0xFF666666),
                   ),
                 ),
-              ],
+              ),
             ],
-          ),
+          ],
         ),
       ),
     );
