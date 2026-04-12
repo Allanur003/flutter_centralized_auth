@@ -4,7 +4,8 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:device_apps/device_apps.dart';
+import 'package:installed_apps/installed_apps.dart';
+import 'package:installed_apps/app_info.dart';
 import '../services/app_provider.dart';
 import '../services/localization.dart';
 import 'login_screen.dart';
@@ -336,12 +337,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
           
           // Convert app icon to base64 if available
           String iconData = '📱'; // Default emoji fallback
-          if (app is ApplicationWithIcon) {
-            iconData = base64Encode(app.icon);
+          if (app.icon != null) {
+            iconData = base64Encode(app.icon!);
           }
           
           await provider.addApp(
-            name: app.appName,
+            name: app.name,
             icon: iconData,
             androidPackage: app.packageName,
             iosScheme: null,
@@ -351,7 +352,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('${app.appName} ${AppLocalizations.translate('app_added', locale)}'),
+                content: Text('${app.name} ${AppLocalizations.translate('app_added', locale)}'),
                 behavior: SnackBarBehavior.floating,
                 duration: const Duration(seconds: 2),
               ),
@@ -1027,7 +1028,7 @@ class _QuickAddSheet extends StatelessWidget {
 // ─── NEW: Installed Apps Sheet ────────────────────────────────────────────────
 
 class _InstalledAppsSheet extends StatefulWidget {
-  final void Function(Application app) onAdd;
+  final void Function(AppInfo app) onAdd;
 
   const _InstalledAppsSheet({Key? key, required this.onAdd}) : super(key: key);
 
@@ -1036,8 +1037,8 @@ class _InstalledAppsSheet extends StatefulWidget {
 }
 
 class _InstalledAppsSheetState extends State<_InstalledAppsSheet> {
-  List<Application> _allApps = [];
-  List<Application> _filteredApps = [];
+  List<AppInfo> _allApps = [];
+  List<AppInfo> _filteredApps = [];
   bool _isLoading = true;
   final _searchCtrl = TextEditingController();
 
@@ -1056,14 +1057,12 @@ class _InstalledAppsSheetState extends State<_InstalledAppsSheet> {
   }
 
   Future<void> _loadInstalledApps() async {
-    // Only include apps that can be launched (excludes system services)
-    final apps = await DeviceApps.getInstalledApplications(
-      includeAppIcons: true,
-      includeSystemApps: false,
-      onlyAppsWithLaunchIntent: true,
-    );
-    // Sort alphabetically
-    apps.sort((a, b) => a.appName.toLowerCase().compareTo(b.appName.toLowerCase()));
+    // Get all installed apps with icons
+    final apps = await InstalledApps.getInstalledApps(true, true);
+    
+    // Sort alphabetically by app name
+    apps.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+    
     if (mounted) {
       setState(() {
         _allApps = apps;
@@ -1077,7 +1076,7 @@ class _InstalledAppsSheetState extends State<_InstalledAppsSheet> {
     final query = _searchCtrl.text.toLowerCase();
     setState(() {
       _filteredApps = _allApps
-          .where((app) => app.appName.toLowerCase().contains(query))
+          .where((app) => app.name.toLowerCase().contains(query))
           .toList();
     });
   }
@@ -1195,7 +1194,6 @@ class _InstalledAppsSheetState extends State<_InstalledAppsSheet> {
                             itemCount: _filteredApps.length,
                             itemBuilder: (ctx, i) {
                               final app = _filteredApps[i];
-                              final appWithIcon = app is ApplicationWithIcon ? app : null;
                               return InkWell(
                                 onTap: () {
                                   widget.onAdd(app);
@@ -1216,11 +1214,11 @@ class _InstalledAppsSheetState extends State<_InstalledAppsSheet> {
                                               ? const Color(0xFF2A2A2A)
                                               : const Color(0xFFF0F0F0),
                                         ),
-                                        child: appWithIcon != null
+                                        child: app.icon != null
                                             ? ClipRRect(
                                                 borderRadius: BorderRadius.circular(12),
                                                 child: Image.memory(
-                                                  appWithIcon.icon,
+                                                  app.icon!,
                                                   fit: BoxFit.cover,
                                                 ),
                                               )
@@ -1233,7 +1231,7 @@ class _InstalledAppsSheetState extends State<_InstalledAppsSheet> {
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              app.appName,
+                                              app.name,
                                               style: TextStyle(
                                                 fontSize: 15,
                                                 fontWeight: FontWeight.w500,
