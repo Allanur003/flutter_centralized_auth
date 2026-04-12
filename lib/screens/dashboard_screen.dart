@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:device_apps/device_apps.dart';
 import '../services/app_provider.dart';
 import '../services/localization.dart';
 import 'login_screen.dart';
@@ -166,9 +167,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     try {
       if (Platform.isAndroid && androidPackage != null && androidPackage.isNotEmpty) {
-        // Try to open via Android intent (market scheme or direct intent)
-        final intentUri = Uri.parse('intent://#Intent;package=$androidPackage;end');
-        // Simpler approach: use android-app scheme
         final androidUri = Uri.parse('android-app://$androidPackage');
         if (await canLaunchUrl(androidUri)) {
           launched = await launchUrl(androidUri, mode: LaunchMode.externalApplication);
@@ -193,9 +191,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
 
     if (!launched && mounted) {
+      final provider = Provider.of<AppProvider>(context, listen: false);
+      final locale = provider.locale;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Could not open ${app['name']}'),
+          content: Text('${AppLocalizations.translate('could_not_open', locale)} ${app['name']}'),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -269,6 +269,39 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  // ── NEW: Pick from installed apps on the device ────────────────────────────
+
+  void _showInstalledAppsSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _InstalledAppsSheet(
+        onAdd: (app) async {
+          final provider = Provider.of<AppProvider>(context, listen: false);
+          final locale = provider.locale;
+          await provider.addApp(
+            name: app.appName,
+            icon: '📱',
+            androidPackage: app.packageName,
+            iosScheme: null,
+            fallbackUrl: null,
+          );
+          await _loadApps();
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('${app.appName} ${AppLocalizations.translate('app_added', locale)}'),
+                behavior: SnackBarBehavior.floating,
+                duration: const Duration(seconds: 2),
+              ),
+            );
+          }
+        },
+      ),
+    );
+  }
+
   Future<void> _deleteApp(Map<String, dynamic> app) async {
     final provider = Provider.of<AppProvider>(context, listen: false);
     await provider.removeApp(app['id']);
@@ -292,7 +325,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
             TextButton(
               onPressed: () => setState(() => _isEditMode = !_isEditMode),
               child: Text(
-                _isEditMode ? 'Done' : 'Edit',
+                _isEditMode
+                    ? AppLocalizations.translate('done', locale)
+                    : AppLocalizations.translate('edit', locale),
                 style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
               ),
             ),
@@ -314,7 +349,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 _buildUserCard(user!, isDark, locale),
                 Expanded(
                   child: _apps.isEmpty
-                      ? _buildEmptyState(isDark)
+                      ? _buildEmptyState(isDark, locale)
                       : GridView.builder(
                           padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
                           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -344,6 +379,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
           : Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                // Button 1: Apps on My Phone (NEW)
+                if (Platform.isAndroid)
+                  FloatingActionButton.small(
+                    heroTag: 'from_phone',
+                    onPressed: _showInstalledAppsSheet,
+                    backgroundColor: isDark ? const Color(0xFF2A2A2A) : Colors.white,
+                    foregroundColor: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                    elevation: 2,
+                    tooltip: AppLocalizations.translate('add_from_phone', locale),
+                    child: const Icon(Icons.phone_android, size: 20),
+                  ),
+                if (Platform.isAndroid) const SizedBox(height: 10),
+                // Button 2: Popular apps preset
                 FloatingActionButton.small(
                   heroTag: 'quick_add',
                   onPressed: _showQuickAddSheet,
@@ -351,9 +399,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   foregroundColor: isDark ? Colors.white : const Color(0xFF1A1A1A),
                   elevation: 2,
                   child: const Icon(Icons.apps, size: 20),
-                  tooltip: 'Popular Apps',
+                  tooltip: AppLocalizations.translate('popular_apps', locale),
                 ),
                 const SizedBox(height: 10),
+                // Button 3: Add custom
                 FloatingActionButton(
                   heroTag: 'add_custom',
                   onPressed: () => _showAddAppSheet(),
@@ -361,22 +410,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   foregroundColor: Colors.white,
                   elevation: 2,
                   child: const Icon(Icons.add),
-                  tooltip: 'Add Custom App',
+                  tooltip: AppLocalizations.translate('add_custom_app', locale),
                 ),
               ],
             ),
     );
   }
 
-  Widget _buildEmptyState(bool isDark) {
+  Widget _buildEmptyState(bool isDark, String locale) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text('📱', style: const TextStyle(fontSize: 64)),
+          const Text('📱', style: TextStyle(fontSize: 64)),
           const SizedBox(height: 20),
           Text(
-            'No apps yet',
+            AppLocalizations.translate('no_apps_yet', locale),
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
@@ -385,17 +434,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Tap + to add apps from your phone',
+            AppLocalizations.translate('add_apps_hint', locale),
             style: TextStyle(
               fontSize: 14,
               color: isDark ? const Color(0xFF888888) : const Color(0xFF666666),
             ),
           ),
           const SizedBox(height: 32),
+          if (Platform.isAndroid)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: ElevatedButton.icon(
+                onPressed: _showInstalledAppsSheet,
+                icon: const Icon(Icons.phone_android, size: 18),
+                label: Text(AppLocalizations.translate('add_from_phone', locale)),
+              ),
+            ),
           ElevatedButton.icon(
             onPressed: _showQuickAddSheet,
             icon: const Icon(Icons.apps, size: 18),
-            label: const Text('Browse Popular Apps'),
+            label: Text(AppLocalizations.translate('browse_popular_apps', locale)),
           ),
         ],
       ),
@@ -507,7 +565,6 @@ class _AppTile extends StatelessWidget {
     return GestureDetector(
       onTap: isEditMode ? onEdit : onTap,
       onLongPress: isEditMode ? null : () {
-        // Long press = edit mode shortcut
         showModalBottomSheet(
           context: context,
           backgroundColor: Colors.transparent,
@@ -594,6 +651,7 @@ class _AppActionSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = Provider.of<AppProvider>(context, listen: false).locale;
     return Container(
       margin: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -633,7 +691,7 @@ class _AppActionSheet extends StatelessWidget {
           ListTile(
             leading: Icon(Icons.edit_outlined,
                 color: isDark ? Colors.white : const Color(0xFF1A1A1A)),
-            title: Text('Edit',
+            title: Text(AppLocalizations.translate('edit', locale),
                 style: TextStyle(color: isDark ? Colors.white : const Color(0xFF1A1A1A))),
             onTap: () {
               Navigator.pop(context);
@@ -642,7 +700,8 @@ class _AppActionSheet extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.delete_outline, color: Color(0xFFFF3B30)),
-            title: const Text('Remove', style: TextStyle(color: Color(0xFFFF3B30))),
+            title: Text(AppLocalizations.translate('remove', locale),
+                style: const TextStyle(color: Color(0xFFFF3B30))),
             onTap: () {
               Navigator.pop(context);
               onDelete();
@@ -718,6 +777,7 @@ class _AddAppSheetState extends State<_AddAppSheet> {
   Widget build(BuildContext context) {
     final provider = Provider.of<AppProvider>(context, listen: false);
     final isDark = provider.isDarkMode;
+    final locale = provider.locale;
     final isEdit = widget.existingApp != null;
 
     return Container(
@@ -738,7 +798,9 @@ class _AddAppSheetState extends State<_AddAppSheet> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    isEdit ? 'Edit App' : 'Add Custom App',
+                    isEdit
+                        ? AppLocalizations.translate('edit_app', locale)
+                        : AppLocalizations.translate('add_custom_app', locale),
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
@@ -753,17 +815,19 @@ class _AddAppSheetState extends State<_AddAppSheet> {
                 ],
               ),
               const SizedBox(height: 20),
-              _buildField('App Name *', _nameCtrl, isDark, hint: 'e.g. YouTube'),
+              _buildField(AppLocalizations.translate('app_name_required', locale), _nameCtrl, isDark,
+                  hint: 'e.g. YouTube'),
               const SizedBox(height: 14),
-              _buildField('Icon (emoji)', _iconCtrl, isDark, hint: '📱'),
+              _buildField(AppLocalizations.translate('icon_emoji', locale), _iconCtrl, isDark,
+                  hint: '📱'),
               const SizedBox(height: 14),
-              _buildField('Android Package', _androidCtrl, isDark,
+              _buildField(AppLocalizations.translate('android_package', locale), _androidCtrl, isDark,
                   hint: 'e.g. com.google.android.youtube'),
               const SizedBox(height: 14),
-              _buildField('iOS URL Scheme', _iosCtrl, isDark,
+              _buildField(AppLocalizations.translate('ios_url_scheme', locale), _iosCtrl, isDark,
                   hint: 'e.g. youtube://'),
               const SizedBox(height: 14),
-              _buildField('Fallback URL', _urlCtrl, isDark,
+              _buildField(AppLocalizations.translate('fallback_url', locale), _urlCtrl, isDark,
                   hint: 'e.g. https://youtube.com'),
               const SizedBox(height: 24),
               SizedBox(
@@ -771,7 +835,9 @@ class _AddAppSheetState extends State<_AddAppSheet> {
                 height: 52,
                 child: ElevatedButton(
                   onPressed: _save,
-                  child: Text(isEdit ? 'Save Changes' : 'Add App'),
+                  child: Text(isEdit
+                      ? AppLocalizations.translate('save_changes', locale)
+                      : AppLocalizations.translate('add_app', locale)),
                 ),
               ),
             ],
@@ -816,6 +882,7 @@ class _QuickAddSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = Provider.of<AppProvider>(context, listen: false);
     final isDark = provider.isDarkMode;
+    final locale = provider.locale;
 
     return Container(
       margin: const EdgeInsets.all(16),
@@ -832,7 +899,7 @@ class _QuickAddSheet extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Popular Apps',
+                  AppLocalizations.translate('popular_apps', locale),
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
@@ -896,6 +963,259 @@ class _QuickAddSheet extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+// ─── NEW: Installed Apps Sheet ────────────────────────────────────────────────
+
+class _InstalledAppsSheet extends StatefulWidget {
+  final void Function(Application app) onAdd;
+
+  const _InstalledAppsSheet({Key? key, required this.onAdd}) : super(key: key);
+
+  @override
+  State<_InstalledAppsSheet> createState() => _InstalledAppsSheetState();
+}
+
+class _InstalledAppsSheetState extends State<_InstalledAppsSheet> {
+  List<Application> _allApps = [];
+  List<Application> _filteredApps = [];
+  bool _isLoading = true;
+  final _searchCtrl = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadInstalledApps();
+    _searchCtrl.addListener(_filterApps);
+  }
+
+  @override
+  void dispose() {
+    _searchCtrl.removeListener(_filterApps);
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadInstalledApps() async {
+    // Only include apps that can be launched (excludes system services)
+    final apps = await DeviceApps.getInstalledApplications(
+      includeAppIcons: true,
+      includeSystemApps: false,
+      onlyAppsWithLaunchIntent: true,
+    );
+    // Sort alphabetically
+    apps.sort((a, b) => a.appName.toLowerCase().compareTo(b.appName.toLowerCase()));
+    if (mounted) {
+      setState(() {
+        _allApps = apps;
+        _filteredApps = apps;
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _filterApps() {
+    final query = _searchCtrl.text.toLowerCase();
+    setState(() {
+      _filteredApps = _allApps
+          .where((app) => app.appName.toLowerCase().contains(query))
+          .toList();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = Provider.of<AppProvider>(context, listen: false);
+    final isDark = provider.isDarkMode;
+    final locale = provider.locale;
+
+    return DraggableScrollableSheet(
+      initialChildSize: 0.85,
+      minChildSize: 0.5,
+      maxChildSize: 0.95,
+      builder: (ctx, scrollController) {
+        return Container(
+          margin: const EdgeInsets.only(top: 16),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: Column(
+            children: [
+              // Handle bar
+              const SizedBox(height: 8),
+              Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF3A3A3A) : const Color(0xFFDDDDDD),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              // Header
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 16, 16, 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      AppLocalizations.translate('add_from_phone', locale),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.close,
+                          color: isDark ? const Color(0xFF888888) : const Color(0xFF666666)),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+              ),
+              // Search bar
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                child: TextField(
+                  controller: _searchCtrl,
+                  style: TextStyle(
+                    color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                  ),
+                  decoration: InputDecoration(
+                    hintText: AppLocalizations.translate('search_apps', locale),
+                    prefixIcon: Icon(
+                      Icons.search,
+                      color: isDark ? const Color(0xFF888888) : const Color(0xFF666666),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  ),
+                ),
+              ),
+              // Subtitle hint
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+                child: Text(
+                  AppLocalizations.translate('select_to_add', locale),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? const Color(0xFF888888) : const Color(0xFF888888),
+                  ),
+                ),
+              ),
+              const Divider(height: 1),
+              // App list
+              Expanded(
+                child: _isLoading
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const CircularProgressIndicator(),
+                            const SizedBox(height: 16),
+                            Text(
+                              AppLocalizations.translate('loading_apps', locale),
+                              style: TextStyle(
+                                color: isDark ? const Color(0xFF888888) : const Color(0xFF666666),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : _filteredApps.isEmpty
+                        ? Center(
+                            child: Text(
+                              AppLocalizations.translate('no_apps_found', locale),
+                              style: TextStyle(
+                                color: isDark ? const Color(0xFF888888) : const Color(0xFF666666),
+                              ),
+                            ),
+                          )
+                        : ListView.builder(
+                            controller: scrollController,
+                            itemCount: _filteredApps.length,
+                            itemBuilder: (ctx, i) {
+                              final app = _filteredApps[i];
+                              final appWithIcon = app is ApplicationWithIcon ? app : null;
+                              return InkWell(
+                                onTap: () {
+                                  widget.onAdd(app);
+                                  Navigator.pop(context);
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 20, vertical: 10),
+                                  child: Row(
+                                    children: [
+                                      // App icon
+                                      Container(
+                                        width: 48,
+                                        height: 48,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(12),
+                                          color: isDark
+                                              ? const Color(0xFF2A2A2A)
+                                              : const Color(0xFFF0F0F0),
+                                        ),
+                                        child: appWithIcon != null
+                                            ? ClipRRect(
+                                                borderRadius: BorderRadius.circular(12),
+                                                child: Image.memory(
+                                                  appWithIcon.icon,
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              )
+                                            : const Icon(Icons.android, size: 28),
+                                      ),
+                                      const SizedBox(width: 14),
+                                      // App info
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              app.appName,
+                                              style: TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w500,
+                                                color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                                              ),
+                                            ),
+                                            Text(
+                                              app.packageName,
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                color: isDark
+                                                    ? const Color(0xFF666666)
+                                                    : const Color(0xFF999999),
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      // Add icon
+                                      Icon(
+                                        Icons.add_circle_outline,
+                                        color: isDark
+                                            ? const Color(0xFF666666)
+                                            : const Color(0xFFBBBBBB),
+                                        size: 22,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

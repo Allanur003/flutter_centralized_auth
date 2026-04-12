@@ -23,7 +23,7 @@ class SettingsScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          _sectionLabel('Appearance', isDark),
+          _sectionLabel(AppLocalizations.translate('appearance', locale), isDark),
           const SizedBox(height: 8),
           _buildCard(
             isDark,
