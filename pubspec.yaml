@@ -32,7 +32,7 @@ dependencies:
   url_launcher: ^6.2.5
 
   # List installed apps on device
-  installed_apps: ^1.4.3
+  device_apps: ^2.2.0
 
 dev_dependencies:
   flutter_test:
