@@ -3,20 +3,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'database_helper.dart';
 
 class AppProvider with ChangeNotifier {
-  // Theme
   bool _isDarkMode = false;
   bool get isDarkMode => _isDarkMode;
 
-  // Language
   String _locale = 'en';
   String get locale => _locale;
 
-  // User
   Map<String, dynamic>? _currentUser;
   Map<String, dynamic>? get currentUser => _currentUser;
   bool get isLoggedIn => _currentUser != null;
 
-  // Token
   String? _token;
   String? get token => _token;
 
@@ -65,19 +61,15 @@ class AppProvider with ChangeNotifier {
 
   Future<bool> login(String email, String password) async {
     final result = await _dbHelper.login(email, password);
-    
     if (result != null) {
       _currentUser = result;
       _token = result['token'];
-      
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('token', _token!);
       await prefs.setInt('userId', result['id']);
-      
       notifyListeners();
       return true;
     }
-    
     return false;
   }
 
@@ -90,14 +82,11 @@ class AppProvider with ChangeNotifier {
     if (_token != null) {
       await _dbHelper.deleteSession(_token!);
     }
-    
     _currentUser = null;
     _token = null;
-    
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('token');
     await prefs.remove('userId');
-    
     notifyListeners();
   }
 
@@ -106,11 +95,58 @@ class AppProvider with ChangeNotifier {
     return user?['email'];
   }
 
-  Future<List<Map<String, dynamic>>> getAvailableApps() async {
+  // ─── App Hub Operations ───────────────────────────────────────────────────
+
+  Future<List<Map<String, dynamic>>> getUserApps() async {
     if (_currentUser == null) return [];
-    
-    final age = _currentUser!['age'] as int;
-    return await _dbHelper.getAppsForUser(age);
+    return await _dbHelper.getAppsForUser(_currentUser!['id'] as int);
+  }
+
+  Future<bool> addApp({
+    required String name,
+    required String icon,
+    String? androidPackage,
+    String? iosScheme,
+    String? fallbackUrl,
+  }) async {
+    if (_currentUser == null) return false;
+    await _dbHelper.addAppForUser(
+      userId: _currentUser!['id'] as int,
+      name: name,
+      icon: icon,
+      androidPackage: androidPackage,
+      iosScheme: iosScheme,
+      fallbackUrl: fallbackUrl,
+    );
+    notifyListeners();
+    return true;
+  }
+
+  Future<void> removeApp(int appId) async {
+    if (_currentUser == null) return;
+    await _dbHelper.removeAppForUser(appId, _currentUser!['id'] as int);
+    notifyListeners();
+  }
+
+  Future<void> updateApp({
+    required int appId,
+    required String name,
+    required String icon,
+    String? androidPackage,
+    String? iosScheme,
+    String? fallbackUrl,
+  }) async {
+    if (_currentUser == null) return;
+    await _dbHelper.updateAppForUser(
+      appId: appId,
+      userId: _currentUser!['id'] as int,
+      name: name,
+      icon: icon,
+      androidPackage: androidPackage,
+      iosScheme: iosScheme,
+      fallbackUrl: fallbackUrl,
+    );
+    notifyListeners();
   }
 
   Future<List<Map<String, dynamic>>> getAllUsers() async {

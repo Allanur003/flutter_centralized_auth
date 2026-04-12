@@ -21,8 +21,9 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _createDB,
+      onUpgrade: _upgradeDB,
     );
   }
 
@@ -31,7 +32,6 @@ class DatabaseHelper {
     const textType = 'TEXT NOT NULL';
     const intType = 'INTEGER NOT NULL';
 
-    // Users table
     await db.execute('''
       CREATE TABLE users (
         id $idType,
@@ -45,7 +45,6 @@ class DatabaseHelper {
       )
     ''');
 
-    // Sessions table
     await db.execute('''
       CREATE TABLE sessions (
         id $idType,
@@ -56,40 +55,25 @@ class DatabaseHelper {
       )
     ''');
 
-    // Apps table
+    // Per-user app launcher table
+    // android_package: e.g. "com.google.android.youtube"
+    // ios_scheme: e.g. "youtube://"
+    // fallback_url: e.g. "https://youtube.com"
     await db.execute('''
-      CREATE TABLE apps (
+      CREATE TABLE user_apps (
         id $idType,
+        user_id $intType,
         name $textType,
-        description TEXT,
-        icon TEXT,
-        min_age INTEGER DEFAULT 0
+        icon TEXT DEFAULT '📱',
+        android_package TEXT,
+        ios_scheme TEXT,
+        fallback_url TEXT,
+        sort_order INTEGER DEFAULT 0,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (id)
       )
     ''');
 
-    // Insert default apps
-    await db.insert('apps', {
-      'name': 'FashionStore',
-      'description': 'Online clothing shop',
-      'icon': '👔',
-      'min_age': 0
-    });
-
-    await db.insert('apps', {
-      'name': 'StreamFlix',
-      'description': 'Watch movies and series',
-      'icon': '🎬',
-      'min_age': 13
-    });
-
-    await db.insert('apps', {
-      'name': 'SocialChat',
-      'description': 'Connect with friends',
-      'icon': '💬',
-      'min_age': 10
-    });
-
-    // Create admin user
     final adminPassword = _hashPassword('admin123');
     await db.insert('users', {
       'name': 'Admin',
@@ -100,30 +84,38 @@ class DatabaseHelper {
     });
   }
 
+  Future _upgradeDB(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('DROP TABLE IF EXISTS apps');
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS user_apps (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          user_id INTEGER NOT NULL,
+          name TEXT NOT NULL,
+          icon TEXT DEFAULT '📱',
+          android_package TEXT,
+          ios_scheme TEXT,
+          fallback_url TEXT,
+          sort_order INTEGER DEFAULT 0,
+          created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (user_id) REFERENCES users (id)
+        )
+      ''');
+    }
+  }
+
   String _hashPassword(String password) {
     final bytes = utf8.encode(password);
     final hash = sha256.convert(bytes);
     return hash.toString();
   }
 
-  // User operations
   Future<Map<String, dynamic>?> register(
       String name, String email, String password, int age) async {
     final db = await database;
-
-    // Check if email exists
-    final existing = await db.query(
-      'users',
-      where: 'email = ?',
-      whereArgs: [email],
-    );
-
-    if (existing.isNotEmpty) {
-      return null;
-    }
-
+    final existing = await db.query('users', where: 'email = ?', whereArgs: [email]);
+    if (existing.isNotEmpty) return null;
     final hashedPassword = _hashPassword(password);
-
     final id = await db.insert('users', {
       'name': name,
       'email': email,
@@ -131,47 +123,20 @@ class DatabaseHelper {
       'age': age,
       'role': 'user'
     });
-
-    return {
-      'id': id,
-      'name': name,
-      'email': email,
-      'age': age,
-      'role': 'user'
-    };
+    return {'id': id, 'name': name, 'email': email, 'age': age, 'role': 'user'};
   }
 
   Future<Map<String, dynamic>?> login(String email, String password) async {
     final db = await database;
     final hashedPassword = _hashPassword(password);
-
-    final result = await db.query(
-      'users',
-      where: 'email = ? AND password = ?',
-      whereArgs: [email, hashedPassword],
-    );
-
-    if (result.isEmpty) {
-      return null;
-    }
-
+    final result = await db.query('users',
+        where: 'email = ? AND password = ?', whereArgs: [email, hashedPassword]);
+    if (result.isEmpty) return null;
     final user = result.first;
-
-    // Update last login
-    await db.update(
-      'users',
-      {'last_login': DateTime.now().toIso8601String()},
-      where: 'id = ?',
-      whereArgs: [user['id']],
-    );
-
-    // Create session
+    await db.update('users', {'last_login': DateTime.now().toIso8601String()},
+        where: 'id = ?', whereArgs: [user['id']]);
     final token = _generateToken(user['id'] as int);
-    await db.insert('sessions', {
-      'user_id': user['id'],
-      'token': token,
-    });
-
+    await db.insert('sessions', {'user_id': user['id'], 'token': token});
     return {
       'id': user['id'],
       'name': user['name'],
@@ -192,59 +157,16 @@ class DatabaseHelper {
 
   Future<Map<String, dynamic>?> getUserByEmail(String email) async {
     final db = await database;
-    final result = await db.query(
-      'users',
-      where: 'email = ?',
-      whereArgs: [email],
-    );
-
+    final result = await db.query('users', where: 'email = ?', whereArgs: [email]);
     if (result.isEmpty) return null;
     return result.first;
   }
 
   Future<Map<String, dynamic>?> getUserById(int id) async {
     final db = await database;
-    final result = await db.query(
-      'users',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
-
+    final result = await db.query('users', where: 'id = ?', whereArgs: [id]);
     if (result.isEmpty) return null;
     return result.first;
-  }
-
-  Future<List<Map<String, dynamic>>> getAllApps() async {
-    final db = await database;
-    return await db.query('apps');
-  }
-
-  Future<List<Map<String, dynamic>>> getAppsForUser(int age) async {
-    final db = await database;
-    return await db.query(
-      'apps',
-      where: 'min_age <= ?',
-      whereArgs: [age],
-    );
-  }
-
-  Future<bool> verifyToken(String token) async {
-    final db = await database;
-    final result = await db.query(
-      'sessions',
-      where: 'token = ?',
-      whereArgs: [token],
-    );
-    return result.isNotEmpty;
-  }
-
-  Future<void> deleteSession(String token) async {
-    final db = await database;
-    await db.delete(
-      'sessions',
-      where: 'token = ?',
-      whereArgs: [token],
-    );
   }
 
   Future<List<Map<String, dynamic>>> getAllUsers() async {
@@ -256,6 +178,78 @@ class DatabaseHelper {
     final db = await database;
     await db.delete('users', where: 'id = ?', whereArgs: [id]);
     await db.delete('sessions', where: 'user_id = ?', whereArgs: [id]);
+    await db.delete('user_apps', where: 'user_id = ?', whereArgs: [id]);
+  }
+
+  Future<bool> verifyToken(String token) async {
+    final db = await database;
+    final result = await db.query('sessions', where: 'token = ?', whereArgs: [token]);
+    return result.isNotEmpty;
+  }
+
+  Future<void> deleteSession(String token) async {
+    final db = await database;
+    await db.delete('sessions', where: 'token = ?', whereArgs: [token]);
+  }
+
+  // ─── User App Operations ──────────────────────────────────────────────────
+
+  Future<List<Map<String, dynamic>>> getAppsForUser(int userId) async {
+    final db = await database;
+    return await db.query('user_apps',
+        where: 'user_id = ?', whereArgs: [userId], orderBy: 'sort_order ASC, id ASC');
+  }
+
+  Future<int> addAppForUser({
+    required int userId,
+    required String name,
+    required String icon,
+    String? androidPackage,
+    String? iosScheme,
+    String? fallbackUrl,
+  }) async {
+    final db = await database;
+    final maxResult = await db.rawQuery(
+        'SELECT MAX(sort_order) as max_order FROM user_apps WHERE user_id = ?', [userId]);
+    final maxOrder = (maxResult.first['max_order'] as int?) ?? -1;
+    return await db.insert('user_apps', {
+      'user_id': userId,
+      'name': name,
+      'icon': icon,
+      'android_package': androidPackage,
+      'ios_scheme': iosScheme,
+      'fallback_url': fallbackUrl,
+      'sort_order': maxOrder + 1,
+    });
+  }
+
+  Future<void> removeAppForUser(int appId, int userId) async {
+    final db = await database;
+    await db.delete('user_apps', where: 'id = ? AND user_id = ?', whereArgs: [appId, userId]);
+  }
+
+  Future<void> updateAppForUser({
+    required int appId,
+    required int userId,
+    required String name,
+    required String icon,
+    String? androidPackage,
+    String? iosScheme,
+    String? fallbackUrl,
+  }) async {
+    final db = await database;
+    await db.update(
+      'user_apps',
+      {
+        'name': name,
+        'icon': icon,
+        'android_package': androidPackage,
+        'ios_scheme': iosScheme,
+        'fallback_url': fallbackUrl,
+      },
+      where: 'id = ? AND user_id = ?',
+      whereArgs: [appId, userId],
+    );
   }
 
   Future<void> close() async {
