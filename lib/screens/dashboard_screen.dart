@@ -1133,7 +1133,6 @@ class _InstalledAppsSheetState extends State<_InstalledAppsSheet> {
                             itemCount: _filteredApps.length,
                             itemBuilder: (ctx, i) {
                               final app = _filteredApps[i];
-                              final appWithIcon = app is ApplicationWithIcon ? app : null;
                               return InkWell(
                                 onTap: () {
                                   widget.onAdd(app);
