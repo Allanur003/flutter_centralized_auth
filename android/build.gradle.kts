@@ -23,3 +23,14 @@ tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }
 
+subprojects {
+    afterEvaluate { proj ->
+        if (proj.plugins.hasPlugin("com.android.library")) {
+            proj.configure<com.android.build.gradle.LibraryExtension> {
+                if (namespace == null) {
+                    namespace = proj.group.toString()
+                }
+            }
+        }
+    }
+}
